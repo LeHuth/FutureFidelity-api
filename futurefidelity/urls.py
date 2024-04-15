@@ -1,5 +1,5 @@
 """
-URL configuration for beatbarn project.
+URL configuration for futurefidelity project.
 
 The `urlpatterns` list routes URLs to views. For more information please see:
     https://docs.djangoproject.com/en/5.0/topics/http/urls/
@@ -19,5 +19,8 @@ from django.urls import path, include
 
 urlpatterns = [
     path('admin/', admin.site.urls),
+    path('api/auth/', include('auth.urls')),
     path('api/products', include('products.urls'))
+
 ]
+
