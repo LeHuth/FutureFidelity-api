@@ -15,12 +15,26 @@ Including another URLconf
     2. Add a URL to urlpatterns:  path('blog/', include('blog.urls'))
 """
 from django.contrib import admin
+from rest_framework import permissions
 from django.urls import path, include
+from drf_yasg.views import get_schema_view
+from drf_yasg import openapi
+
+schema_view = get_schema_view(
+    openapi.Info(
+        title="Future Fidelity API",
+        default_version='v1',
+        description="API for Future Fidelity",
+        terms_of_service="https://www.google.com/policies/terms/",),
+    public=True,
+    permission_classes=([permissions.AllowAny]),
+)
 
 urlpatterns = [
     path('admin/', admin.site.urls),
     path('api/auth/', include('auth.urls')),
-    path('api/products', include('products.urls'))
-
+    path('api/products/', include('products.urls')),
+    path('api/docs/swagger/', schema_view.with_ui('swagger', cache_timeout=0), name='schema-swagger-ui'),
+    path('api/docs/redoc/', schema_view.with_ui('redoc', cache_timeout=0), name='schema-redoc'),
 ]
 
