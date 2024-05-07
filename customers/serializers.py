@@ -20,13 +20,15 @@ class RegisterSerializer(serializers.ModelSerializer):
     class Meta:
         model = Customer
         fields = (
-            'username', 'password', 'password2', 'email', 'phone', 'street', 'city', 'state', 'country', 'postal_code')
+            'username', 'first_name', 'last_name', 'password', 'password2', 'email', 'phone', 'street', 'city', 'state',
+            'country', 'postal_code', 'about')
         extra_kwargs = {
             'street': {'required': True},
             'city': {'required': True},
             'state': {'required': True},
             'country': {'required': True},
             'postal_code': {'required': True},
+            'about': {'required': False},
         }
 
     def validate(self, attrs):
@@ -38,8 +40,11 @@ class RegisterSerializer(serializers.ModelSerializer):
     def create(self, validated_data):
         user = Customer.objects.create(
             username=validated_data['username'],
+            first_name=validated_data['first_name'],
+            last_name=validated_data['last_name'],
+            about=validated_data.get('about'),
             email=validated_data['email'],
-            phone=validated_data['phone'],
+            phone=validated_data.get('phone'),
             street=validated_data['street'],
             city=validated_data['city'],
             state=validated_data['state'],
