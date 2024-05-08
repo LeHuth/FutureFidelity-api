@@ -46,6 +46,8 @@ INSTALLED_APPS = [
 
 ]
 
+MEDIA_ROOT = BASE_DIR / 'media'
+
 SIMPLE_JWT = {
     'SIGNING_KEY': 'MySecretKey',
 }
