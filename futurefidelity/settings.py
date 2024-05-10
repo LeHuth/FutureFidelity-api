@@ -43,10 +43,12 @@ INSTALLED_APPS = [
     'corsheaders',
     'drf_yasg',
     'customers',
+    'music'
 
 ]
 
 MEDIA_ROOT = BASE_DIR / 'media'
+MEDIA_URL = '/media/'
 
 SIMPLE_JWT = {
     'SIGNING_KEY': 'MySecretKey',

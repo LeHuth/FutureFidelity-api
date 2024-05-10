@@ -1,7 +1,8 @@
 from django.contrib import admin
-from .models import Vinyl, Label, Genre, Artist
+from .models import Vinyl, Label, Genre, Artist, Track
 # Register your models here.
-admin.register(Vinyl)
-admin.register(Label)
-admin.register(Genre)
-admin.register(Artist)
+admin.site.register(Vinyl)
+admin.site.register(Label)
+admin.site.register(Genre)
+admin.site.register(Artist)
+admin.site.register(Track)
