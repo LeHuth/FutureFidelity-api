@@ -2,9 +2,10 @@ from django.shortcuts import render
 from rest_framework import viewsets
 from django.shortcuts import get_object_or_404
 from rest_framework.response import Response
+from rest_framework.views import APIView
 
-from products.models import Product
-from products.serializers import ProductModelSerializer
+from products.models import Product, Vote, Rating
+from products.serializers import ProductModelSerializer, VotesModelSerializer
 
 
 class ProductViewSet(viewsets.ModelViewSet):
@@ -34,3 +35,33 @@ class ProductViewSet(viewsets.ModelViewSet):
 
     def get_serializer_class(self):
         return ProductModelSerializer
+
+
+class CastVoteView(viewsets.ViewSet):
+    queryset = Vote.objects.all()
+    serializer_class = VotesModelSerializer
+
+    def create(self, request, *args, **kwargs):
+        rating = get_object_or_404(Rating, id=self.kwargs['id'])
+        vote_value = request.data.get('vote', True)
+        vote = Vote.objects.create(rating=rating, user=request.user, vote=vote_value)
+        return Response(self.serializer_class(vote).data)
+
+    def update(self, request, *args, **kwargs):
+        vote = get_object_or_404(Vote, id=self.kwargs['id'])
+        vote.vote = not vote.vote
+        vote.save()
+        return Response(self.serializer_class(vote).data)
+
+    def destroy(self, request, *args, **kwargs):
+        vote = get_object_or_404(Vote, id=self.kwargs['id'])
+        vote.delete()
+        return Response(status=204)
+
+
+class VoteCountView(APIView):
+    def get(self, request, *args, **kwargs):
+        up_votes = Vote.objects.filter(rating_id=kwargs['rating_id'], vote=True).count()
+        down_votes = Vote.objects.filter(rating_id=kwargs['rating_id'], vote=False).count()
+
+        return Response({'up_votes': up_votes, 'down_votes': down_votes})

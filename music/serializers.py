@@ -1,7 +1,6 @@
 from rest_framework import serializers
-
-from music.models import Vinyl,Track
-
+from music.models import Vinyl, Track
+from products.serializers import RatingModelSerializer
 
 class TrackSerializer(serializers.ModelSerializer):
     """
@@ -36,13 +35,36 @@ class VinylDetailSerializer(serializers.ModelSerializer):
     """
 
     track_list = serializers.SerializerMethodField()
+    ratings = serializers.SerializerMethodField()
 
     class Meta:
         model = Vinyl
+
         fields = '__all__'
 
     def get_track_list(self, obj):
+        """
+        get_track_list is a method that returns a serialized list of tracks associated with the Vinyl instance.
+
+        Parameters:
+        obj (Vinyl): A Vinyl instance.
+
+        Returns:
+        list: A list of serialized Track instances associated with the Vinyl instance.
+        """
         return TrackSerializer(obj.tracks.all(), many=True).data
+
+    def get_ratings(self, obj):
+        """
+        get_ratings is a method that returns a serialized list of ratings associated with the Vinyl instance.
+
+        Parameters:
+        obj (Vinyl): A Vinyl instance.
+
+        Returns:
+        list: A list of serialized Rating instances associated with the Vinyl instance.
+        """
+        return RatingModelSerializer(obj.ratings.all(), many=True).data
 
     def to_representation(self, instance):
         """
@@ -68,4 +90,3 @@ class VinylDetailSerializer(serializers.ModelSerializer):
         representation['category'] = dict(name=instance.category.name, id=instance.category.id)
 
         return representation
-

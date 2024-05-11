@@ -1,6 +1,17 @@
 from django.db import models
 
 
+class Vote(models.Model):
+    user = models.ForeignKey('auth.User', related_name='vote', on_delete=models.CASCADE)
+    rating = models.ForeignKey('Rating', related_name='vote', on_delete=models.CASCADE)
+    vote = models.BooleanField()
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+
+    def __str__(self):
+        return f'{self.rating.product.name} - {self.user.username}'
+
+
 class Rating(models.Model):
     product = models.ForeignKey('Product', related_name='ratings', on_delete=models.CASCADE)
     user = models.ForeignKey('auth.User', related_name='ratings', on_delete=models.CASCADE)
@@ -37,5 +48,3 @@ class Product(models.Model):
 
     def __str__(self):
         return self.name
-
-
