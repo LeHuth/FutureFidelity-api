@@ -1,3 +1,5 @@
+import math
+
 from rest_framework import serializers
 from music.models import Vinyl, Track
 from products.serializers import RatingModelSerializer
@@ -36,6 +38,7 @@ class VinylDetailSerializer(serializers.ModelSerializer):
 
     track_list = serializers.SerializerMethodField()
     ratings = serializers.SerializerMethodField()
+    overall_rating = serializers.SerializerMethodField()
 
     class Meta:
         model = Vinyl
@@ -65,6 +68,12 @@ class VinylDetailSerializer(serializers.ModelSerializer):
         list: A list of serialized Rating instances associated with the Vinyl instance.
         """
         return RatingModelSerializer(obj.ratings.all(), many=True).data
+
+    def get_overall_rating(self, obj):
+        ratings = obj.ratings.all()
+        if ratings:
+            total = sum([rating.stars for rating in ratings])
+            return math.floor(total / len(ratings))
 
     def to_representation(self, instance):
         """
