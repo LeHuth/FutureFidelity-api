@@ -1,11 +1,11 @@
 from django.shortcuts import render
-from rest_framework import viewsets
+from rest_framework import viewsets, status
 from django.shortcuts import get_object_or_404
 from rest_framework.response import Response
 from rest_framework.views import APIView
 
 from products.models import Product, Vote, Rating
-from products.serializers import ProductModelSerializer, VotesModelSerializer
+from products.serializers import ProductModelSerializer, VotesModelSerializer, RatingModelSerializer
 
 
 class ProductViewSet(viewsets.ModelViewSet):
@@ -35,6 +35,32 @@ class ProductViewSet(viewsets.ModelViewSet):
 
     def get_serializer_class(self):
         return ProductModelSerializer
+
+
+class RatingViewSet(viewsets.ModelViewSet):
+    queryset = Rating.objects.all()
+    serializer_class = RatingModelSerializer
+
+    def create(self, request, *args, **kwargs):
+
+        if not request.user.is_authenticated:
+            return Response({'detail': 'Authentication credentials were not provided.'}, status=status.HTTP_401_UNAUTHORIZED)
+
+        print(request.data.get('product'))
+        product = get_object_or_404(Product, id=request.data.get('product'))
+        rating = Rating.objects.create(product=product, user=request.user, stars=request.data.get('stars'), title=request.data.get('title'), description=request.data.get('description'))
+        return Response(self.serializer_class(rating).data, status=201)
+
+    def update(self, request, *args, **kwargs):
+        rating = get_object_or_404(Rating, id=self.kwargs['id'])
+        rating.rating = request.data.get('rating')
+        rating.save()
+        return Response(self.serializer_class(rating).data)
+
+    def destroy(self, request, *args, **kwargs):
+        rating = get_object_or_404(Rating, id=self.kwargs['id'])
+        rating.delete()
+        return Response(status=204)
 
 
 class CastVoteView(viewsets.ViewSet):

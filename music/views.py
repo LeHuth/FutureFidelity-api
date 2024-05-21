@@ -1,6 +1,7 @@
 import os
 import re
 from django.utils.http import http_date
+from rest_framework.permissions import AllowAny
 from rest_framework.response import Response
 from rest_framework.viewsets import ViewSet
 from rest_framework.generics import RetrieveAPIView
@@ -8,6 +9,8 @@ from music.models import Vinyl, Track
 from music.serializers import VinylListSerializer, VinylDetailSerializer, TrackSerializer
 from django.http import HttpResponse
 from django.shortcuts import get_object_or_404
+from products.models import Rating
+from products.serializers import RatingModelSerializer
 
 # Default chunk size for streaming audio
 DEFAULT_CHUNK_SIZE = 262144  # 256 KB
@@ -36,12 +39,21 @@ class VinylDetailView(RetrieveAPIView):
     serializer_class = VinylDetailSerializer
     lookup_field = 'id'
     lookup_url_kwarg = 'id'
+    permission_classes = [AllowAny]
 
     def retrieve(self, request, *args, **kwargs):
         """
         Returns the details of a single vinyl record.
         """
-        return super().retrieve(request, *args, **kwargs)
+        vinyl = super().retrieve(request, *args, **kwargs).data
+        if request.user.is_authenticated:
+            user_rating = Rating.objects.filter(user=request.user, product=vinyl['id']).first()
+            if user_rating:
+                vinyl['user_rating'] = RatingModelSerializer(user_rating).data
+            else:
+                vinyl['user_rating'] = None
+        else:
+            return Response(vinyl)
 
 
 class StreamAudioView(RetrieveAPIView):

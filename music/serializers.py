@@ -55,7 +55,19 @@ class VinylDetailSerializer(serializers.ModelSerializer):
         Returns:
         list: A list of serialized Track instances associated with the Vinyl instance.
         """
-        return TrackSerializer(obj.tracks.all(), many=True).data
+        unorganized_tracks = obj.tracks.all()
+        side_a = []
+        side_b = []
+        for track in unorganized_tracks:
+            if track.track_locations[0] == 'A':
+                side_a.append(track)
+                continue
+            if track.track_locations[0] == 'B':
+                side_b.append(track)
+                continue
+
+        return dict(side_a=TrackSerializer(side_a, many=True).data, side_b=TrackSerializer(side_b, many=True).data)
+
 
     def get_ratings(self, obj):
         """

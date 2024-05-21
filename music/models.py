@@ -37,15 +37,40 @@ class Artist(models.Model):
         return self.name
 
 
+track_locations = (
+    ('A1', 'A1'),
+    ('A2', 'A2'),
+    ('A3', 'A3'),
+    ('A4', 'A4'),
+    ('A5', 'A5'),
+    ('B1', 'B1'),
+    ('B2', 'B2'),
+    ('B3', 'B3'),
+    ('B4', 'B4'),
+    ('B5', 'B5'),
+    ('C1', 'C1'),
+    ('C2', 'C2'),
+    ('C3', 'C3'),
+    ('C4', 'C4'),
+    ('C5', 'C5'),
+    ('D1', 'D1'),
+    ('D2', 'D2'),
+    ('D3', 'D3'),
+    ('D4', 'D4'),
+    ('D5', 'D5'),
+)
+
+
 class Track(models.Model):
     name = models.CharField(max_length=100)
     duration = models.TimeField()
     audio = models.FileField(upload_to='vinyls/tracks/', null=True, blank=True)
     vinyl = models.ForeignKey('Vinyl', related_name='tracks', on_delete=models.CASCADE)
     coverart = models.ImageField(upload_to='vinyls/tracks/coverart', null=True, blank=True)
+    track_locations = models.CharField(max_length=2, choices=track_locations, null=True, blank=True)
 
     def __str__(self):
-        return self.name
+        return self.name + ' - ' + self.vinyl.artist.name
 
 
 class Vinyl(Product):

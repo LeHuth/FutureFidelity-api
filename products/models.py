@@ -16,6 +16,7 @@ class Rating(models.Model):
     product = models.ForeignKey('Product', related_name='ratings', on_delete=models.CASCADE)
     user = models.ForeignKey('auth.User', related_name='ratings', on_delete=models.CASCADE)
     description = models.TextField(max_length=1000)
+    title = models.CharField(max_length=100)
     stars = models.IntegerField()
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
