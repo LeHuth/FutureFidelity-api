@@ -2,7 +2,8 @@ from django.shortcuts import render
 from rest_framework import views, permissions, status
 from rest_framework.response import Response
 
-from .serializers import UserSerializer
+from customers.models import Customer
+from .serializers import UserSerializer, MeSerializer, CreateCustomerSerializer
 from rest_framework_simplejwt.tokens import RefreshToken
 
 
@@ -21,3 +22,27 @@ class CreateUserView(views.APIView):
                 'access': str(refresh.token)
             }, status=status.HTTP_201_CREATED)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+
+class CreateCustomerView(views.APIView):
+    permission_classes = (permissions.AllowAny,)
+
+    def post(self, request):
+        serializer = CreateCustomerSerializer
+        if serializer.is_valid():
+            customer = serializer.save()
+            refresh = RefreshToken.for_user(customer)
+            return Response({
+                'refresh': str(refresh),
+                'access': str(refresh.token)
+            }, status=status.HTTP_201_CREATED)
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+
+class MeView(views.APIView):
+    permission_classes = (permissions.IsAuthenticated,)
+    serializer_class = MeSerializer
+
+    def get(self, request):
+        customer = Customer.objects.get(id=request.user.id)
+        return Response(MeSerializer(customer).data)

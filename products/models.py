@@ -2,19 +2,19 @@ from django.db import models
 
 
 class Vote(models.Model):
-    user = models.ForeignKey('auth.User', related_name='vote', on_delete=models.CASCADE)
+    customer = models.ForeignKey('customers.Customer', related_name='vote', on_delete=models.CASCADE)
     rating = models.ForeignKey('Rating', related_name='vote', on_delete=models.CASCADE)
     vote = models.BooleanField()
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
 
     def __str__(self):
-        return f'{self.rating.product.name} - {self.user.username}'
+        return f'{self.rating.product.name} - {self.customer.username}'
 
 
 class Rating(models.Model):
     product = models.ForeignKey('Product', related_name='ratings', on_delete=models.CASCADE)
-    user = models.ForeignKey('auth.User', related_name='ratings', on_delete=models.CASCADE)
+    customer = models.ForeignKey('customers.Customer', related_name='ratings', on_delete=models.CASCADE)
     description = models.TextField(max_length=1000)
     title = models.CharField(max_length=100)
     stars = models.IntegerField()

@@ -1,4 +1,4 @@
-from django.contrib.auth.models import User
+from django.contrib.auth.models import AbstractUser
 from django.db import models
 
 
@@ -6,7 +6,7 @@ from django.db import models
 
 # Customer model that extends the auth.User model
 
-class Customer(User):
+class Customer(AbstractUser):
     isSuspended = models.BooleanField(default=False)
     phone = models.CharField(max_length=15, null=True)
     street = models.CharField(max_length=100)
@@ -17,6 +17,7 @@ class Customer(User):
     about = models.TextField(max_length=1000, null=True)
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
+    photo = models.ImageField(upload_to='customers/', null=True)
 
     def __str__(self):
         return self.username

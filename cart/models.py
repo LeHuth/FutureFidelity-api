@@ -2,7 +2,7 @@ from django.db import models
 
 
 class Cart(models.Model):
-    user = models.ForeignKey('auth.User', related_name='cart', on_delete=models.CASCADE)
+    customer = models.ForeignKey('customers.Customer', related_name='cart', on_delete=models.CASCADE)
     product = models.ForeignKey('products.Product', related_name='cart', on_delete=models.CASCADE)
     quantity = models.IntegerField()
     created_at = models.DateTimeField(auto_now_add=True)
