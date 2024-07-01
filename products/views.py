@@ -1,11 +1,13 @@
 from django.shortcuts import render
 from rest_framework import viewsets, status
 from django.shortcuts import get_object_or_404
+from rest_framework.generics import RetrieveAPIView
 from rest_framework.response import Response
 from rest_framework.views import APIView
 
 from products.models import Product, Vote, Rating
-from products.serializers import ProductModelSerializer, VotesModelSerializer, RatingModelSerializer
+from products.serializers import ProductModelSerializer, VotesModelSerializer, RatingModelSerializer, \
+    RatingListSerializer
 
 
 class ProductViewSet(viewsets.ModelViewSet):
@@ -42,13 +44,14 @@ class RatingViewSet(viewsets.ModelViewSet):
     serializer_class = RatingModelSerializer
 
     def create(self, request, *args, **kwargs):
-
         if not request.user.is_authenticated:
-            return Response({'detail': 'Authentication credentials were not provided.'}, status=status.HTTP_401_UNAUTHORIZED)
+            return Response({'detail': 'Authentication credentials were not provided.'},
+                            status=status.HTTP_401_UNAUTHORIZED)
 
         print(request.data.get('product'))
         product = get_object_or_404(Product, id=request.data.get('product'))
-        rating = Rating.objects.create(product=product, user=request.user, stars=request.data.get('stars'), title=request.data.get('title'), description=request.data.get('description'))
+        rating = Rating.objects.create(product=product, customer=request.user, stars=request.data.get('stars'),
+                                       title=request.data.get('title'), description=request.data.get('description'))
         return Response(self.serializer_class(rating).data, status=201)
 
     def update(self, request, *args, **kwargs):
@@ -61,6 +64,24 @@ class RatingViewSet(viewsets.ModelViewSet):
         rating = get_object_or_404(Rating, id=self.kwargs['id'])
         rating.delete()
         return Response(status=204)
+
+    def get(self, request, *args, **kwargs):
+        rating = get_object_or_404(Rating, id=request.query_params.get('id'))
+        return Response(self.serializer_class(rating).data)
+
+    def list(self, request, *args, **kwargs):
+        ratings = self.queryset.filter(id=request.query_params.get('id'))
+
+        return Response(RatingListSerializer(ratings, many=True).data)
+
+
+class RatingListView(RetrieveAPIView):
+    queryset = Rating.objects.all()
+    serializer_class = RatingListSerializer
+
+    def retrieve(self, request, *args, **kwargs):
+        ratings = self.queryset.filter(product_id=request.query_params.get('id'))
+        return Response(self.serializer_class(ratings, many=True).data)
 
 
 class CastVoteView(viewsets.ViewSet):

@@ -22,7 +22,7 @@ class UserSerializer(serializers.ModelSerializer):
 class MeSerializer(serializers.ModelSerializer):
     class Meta:
         model = Customer
-        fields = '__all__'
+        fields = ('username', 'email', 'phone', 'street', 'city', 'state', 'country', 'postal_code', 'about', 'photo')
         authentication_classes = [IsAuthenticated]
 
     def get(self, request):
